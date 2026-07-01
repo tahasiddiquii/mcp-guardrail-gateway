@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from mcp_guardrail.audit import AuditLog
@@ -47,7 +48,7 @@ def cmd_demo(args: argparse.Namespace) -> int:
         if out.neutralized:
             note.append(f"{out.neutralized} neutralized")
         verdict = verdict + (f" ({', '.join(note)})" if note else "")
-        table.add_row(role, tool, scenario, verdict, out.text[:80])
+        table.add_row(role, tool, scenario, verdict, escape(out.text[:80]))
     console.print(table)
     console.print(f"audit chain verified: {gw.audit.verify()} ({len(gw.audit)} entries)")
     return 0
@@ -60,7 +61,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
     console.print(f"[bold]{'ALLOWED' if out.allowed else 'BLOCKED'}[/bold]  role={args.role} tool={args.tool}")
     console.print(f"reasons: {', '.join(out.reasons)}")
     console.print(f"findings: {out.findings}  redacted={out.redacted}  neutralized={out.neutralized}")
-    console.print(f"result: {out.text}")
+    console.print(f"result: {escape(out.text)}")
     return 0
 
 
