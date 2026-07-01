@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-guardrail-gateway"
+version = "0.1.0"
+description = "A security gateway that puts a policy, injection-scanning, and audit layer in front of any MCP server."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Taha Siddiqui", email = "work.tahasiddiqui@gmail.com" }]
+keywords = ["mcp", "model-context-protocol", "security", "guardrails", "prompt-injection", "agents"]
+dependencies = [
+  "pydantic>=2.6",
+  "pyyaml>=6.0",
+  "rich>=13.7",
+]
+
+[project.optional-dependencies]
+# The live MCP server transport. The core policy engine and evals do not need it,
+# so CI stays fast and fully offline while production installs `.[mcp]`.
+mcp = ["mcp>=1.9"]
+dev = ["pytest>=8.0", "ruff>=0.6", "mcp>=1.9"]
+
+[project.scripts]
+gateway = "mcp_guardrail.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_guardrail"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+ignore = ["E501", "B008", "UP042"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,36 @@
+# Example gateway policy. Load with: gateway serve --policy data/policy.example.yaml
+# Nothing about tool access is implicit: a reviewer can read this file and know
+# exactly which role may call which tool, and with what argument constraints.
+
+roles: [analyst, admin]
+redact_pii: true
+redact_secrets: true
+block_secret_egress: true
+neutralize_result_injection: true
+
+tools:
+  - name: read_file
+    allowed_roles: [analyst, admin]
+    max_calls_per_minute: 60
+    arg_constraints:
+      path:
+        path_prefixes: ["/company/"]
+
+  - name: fetch_url
+    allowed_roles: [analyst, admin]
+    max_calls_per_minute: 60
+    arg_constraints:
+      url:
+        allowed_hosts: ["docs.company.com"]
+
+  - name: query_db
+    allowed_roles: [analyst, admin]
+    max_calls_per_minute: 60
+    arg_constraints:
+      sql:
+        deny_substrings: ["drop ", "delete ", "update ", "insert ", "alter ", ";--"]
+
+  - name: send_email
+    allowed_roles: [admin]
+    egress: true
+    max_calls_per_minute: 10
